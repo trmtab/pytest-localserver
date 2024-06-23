@@ -2,6 +2,7 @@
 #
 # This program is release under the MIT license. You can find the full text of
 # the license in the LICENSE file.
+from os import getenv
 import enum
 import itertools
 import json
@@ -21,7 +22,9 @@ class WSGIServer(threading.Thread):
 
     def __init__(self, host="127.0.0.1", port=0, application=None, **kwargs):
         self.app = application
-        self._server = make_server(host, port, self.app, **kwargs)
+        listen_host = getenv("PYTEST_LOCALSERVER_HOST", host)
+        listen_port = getenv("PYTEST_LOCALSERVER_PORT", port)
+        self._server = make_server(listen_host, listen_port, self.app, **kwargs)
         self.server_address = self._server.server_address
 
         super().__init__(name=self.__class__, target=self._server.serve_forever)
